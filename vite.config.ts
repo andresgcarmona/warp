@@ -9,10 +9,13 @@ export default defineConfig({
     rollupOptions: {
       input: {
         app: fileURLToPath(new URL('./index.html', import.meta.url)),
+        background: fileURLToPath(new URL('./src/background.ts', import.meta.url)),
+        index: fileURLToPath(new URL('./src/index.scss', import.meta.url)),
       },
       output: {
-        entryFileNames: "static/js/[name].js",
-      }
-    }
-  }
+        entryFileNames: '[name].js',
+        assetFileNames: '[name][extname]'
+      },
+    },
+  },
 })
