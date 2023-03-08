@@ -85,6 +85,8 @@
     border-block-start: 1px solid var(--border);
     border-block-end: 1px solid var(--border);
     position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .warp-item {
@@ -94,6 +96,18 @@
     min-height: 60px;
     gap: 0.6rem;
     padding-inline: 1rem;
+
+    &.warp-item-active {
+      &:before {
+        height: 60px;
+        position: absolute;
+        display: block;
+        content: "";
+        width: 2px;
+        left: 0;
+        background-color: var(--accent);
+      }
+    }
 
     .warp-item-details * {
       line-height: normal;
@@ -131,13 +145,11 @@
   }
 }
 
-.warp-extension
-.warp-extension
-
 .warp-closing {
   pointer-events: none;
   display: none !important;
 }
+
 .warp-extension #warp-overlay {
   height: 100%;
   width: 100%;
@@ -217,30 +229,13 @@
 
 .warp-extension .warp-item:hover {
   cursor: pointer;
-  background-color: var(--select);
-
-  &:before {
-    height: 60px;
-    position: absolute;
-    display: block;
-    content: "";
-    width: 2px;
-    left: 0;
-    background-color: var(--accent);
-  }
 }
+
 .warp-extension .warp-item-active {
   background-color: var(--select);
   position: relative;
 }
-.warp-extension .warp-item-active:before {
-  height: 100%;
-  position: absolute;
-  display: block;
-  content: "";
-  width: 2px;
-  background-color: var(--accent);
-}
+
 .warp-extension .warp-select {
   float: right;
   vertical-align: middle;
@@ -301,7 +296,6 @@
 .warp-extension #warp-footer {
   height: 45px;
   line-height: 45px;
-  border-top: 1px solid var(--border);
   width: 92%;
   margin-left: auto;
   margin-right: auto;

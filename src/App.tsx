@@ -1,41 +1,30 @@
-import { FC, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Command as CommandInterface } from 'types'
+import { getCommands } from './utils/getCommands'
 
-interface Command {
-  title: string
-  desc: string
-  type: string
-  action: string
-  emoji: boolean
-  emojiChar: string
-  keyCheck: boolean
-}
+const defaultCommands: CommandInterface[] = getCommands()
 
-const defaultCommands: Command[] = [
-  {
-    title: 'Search',
-    desc: 'Search for a query',
-    type: 'action',
-    action: 'search',
-    emoji: true,
-    emojiChar: '🔍',
-    keyCheck: false,
-  },
-  {
-    title: 'Search',
-    desc: 'Go to website',
-    type: 'action',
-    action: 'goto',
-    emoji: true,
-    emojiChar: '🔍',
-    keyCheck: false,
-  },
-]
-
-const Command: FC<{ command: Command }> = ({ command }) => {
-  return (
-    <div className="warp-item">
-      <span className="warp-emoji-action">{command.emojiChar}</span>
+const Command: FC<{
+  command: CommandInterface
+  isActive?: boolean
+  handleHover: (e: any) => void
+}> = ({ command, handleHover, isActive = false }) => {
+  const ref = useRef<HTMLDivElement | null>(null)
   
+  useEffect(() => {
+    if (isActive && ref.current) {
+      ref.current.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+      })
+    }
+  }, [isActive])
+  
+  return (
+    <div className={`warp-item ${isActive ? 'warp-item-active' : ''}`} ref={ref} onMouseEnter={handleHover}>
+      {command.emoji ? <span className="warp-emoji-action">{command.emojiChar}</span> : null}
+      {command.favIconUrl ? <img src={command.favIconUrl} alt={command.title} className="warp-emoji-action"/> : null}
+      
       <div className="warp-item-details">
         <div className="warp-item-name">{command.title}</div>
         <div className="warp-item-desc">{command.desc}</div>
@@ -45,8 +34,10 @@ const Command: FC<{ command: Command }> = ({ command }) => {
 }
 
 export const App = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [commands, setCommands] = useState<Command[]>(defaultCommands)
+  const [isOpen, setIsOpen]           = useState(false)
+  const [search, setSearch]           = useState('')
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [commands, setCommands]       = useState<CommandInterface[]>(defaultCommands)
   
   type Action = 'open-warp' | 'close-warp'
   
@@ -78,21 +69,81 @@ export const App = () => {
     }
   })
   
+  const checkKeyPressed = useCallback(
+    (e) => {
+      if (e.key === 'ArrowDown') {
+        setActiveIndex(index => {
+          if (index === filteredCommands.length - 1) return filteredCommands.length - 1
+          
+          return index + 1
+        })
+      }
+      
+      if (e.key === 'ArrowUp') {
+        setActiveIndex(index => {
+          if (index === 0) return 0
+          
+          return index - 1
+        })
+      }
+      
+      if (e.key === 'Home') {
+        setActiveIndex(0)
+      }
+  
+      if (e.key === 'End') {
+        setActiveIndex(filteredCommands.length - 1)
+      }
+    },
+    [],
+  )
+  
+  const filteredCommands = useMemo(() => {
+    if (search.trim() === '') {
+      return commands
+    }
+    
+    const searchRegExp = new RegExp(search, 'i')
+    
+    return commands.filter((command: Command) => {
+      return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
+    })
+  }, [search])
+  
+  useEffect(() => {
+    setActiveIndex(0)
+  }, [filteredCommands.length])
+  
+  useEffect(() => {
+    document.addEventListener('keydown', checkKeyPressed)
+    
+    return () => {
+      document.removeEventListener('keydown', checkKeyPressed)
+    }
+  }, [])
+  
   return (
     <>
-      <div id="warp-extension" className={`${!isOpen ? 'warp-closin' : ''} warp-extension`}>
+      <div id="warp-extension" className={`${!isOpen ? 'warp-cloing' : ''} warp-extension`}>
         <div id="warp-wrap">
           <div id="warp">
             <div id="warp-search">
-              <input placeholder="Type a command or search"/>
+              <input
+                value={search}
+                placeholder="Type a command or search" onChange={(e) => {
+                setSearch(e.target.value)
+              }}
+              />
             </div>
             <div id="warp-list">
-              {commands.map((command, index) => (
-                <Command key={index} command={command} />
+              {filteredCommands.map((command, index) => (
+                <Command key={index} command={command} isActive={activeIndex === index} handleHover={() => {
+                  setActiveIndex(index)
+                }}/>
               ))}
             </div>
             <div id="warp-footer">
-              <div id="warp-results">{commands.length} results</div>
+              <div id="warp-results">{filteredCommands.length} results</div>
               <div id="warp-arrows">Use arrow keys <span className="warp-shortcut">↑</span><span
                 className="warp-shortcut">↓</span> to navigate
               </div>
