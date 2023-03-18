@@ -122,13 +122,11 @@ export const App = () => {
       
       if (e.key === 'Enter') {
         setActiveIndex(index => {
-          console.log(index)
-          
           // Get command.
           const command = filteredCommands[index]
           
           if (command.action) {
-            command.action(search)
+            command.action(search as any)
           }
           
           return index
@@ -155,7 +153,7 @@ export const App = () => {
   
   return (
     <>
-      <div id="warp-extension" className={`${!isOpen ? 'warp-cloing' : ''} warp-extension`}>
+      <div id="warp-extension" className={`${!isOpen ? 'warp-closing' : ''} warp-extension`}>
         <div id="warp-wrap">
           <div id="warp">
             <div id="warp-search">
@@ -169,12 +167,17 @@ export const App = () => {
             </div>
             <div id="warp-list">
               {filteredCommands.map((command, index) => (
-                <Command key={index} tabIndex={index} command={command} isActive={activeIndex === index}
-                         handleHover={() => {
-                           setActiveIndex(index)
-                         }} handleSelect={() => {
-                  command.action(search)
-                }}/>
+                <Command
+                  key={index}
+                  tabIndex={index}
+                  command={command}
+                  isActive={activeIndex === index}
+                  handleHover={() => {
+                    setActiveIndex(index)
+                  }}
+                  handleSelect={() => {
+                    command.action(search as any)
+                  }}/>
               ))}
             </div>
             <div id="warp-footer">

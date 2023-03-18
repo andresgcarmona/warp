@@ -26,6 +26,12 @@ async function getCurrentTab() {
   return tab;
 }
 
+const openTab = () => {
+  chrome.tabs.create({
+    url: 'chrome://newtab'
+  });
+}
+
 chrome.runtime.onInstalled.addListener(function () {
   chrome.storage.sync.set({ installed: true }, function () {
     console.log('The extension was successfully installed.')
@@ -50,5 +56,13 @@ chrome.runtime.onInstalled.addListener(function () {
 })
 
 chrome.action.onClicked.addListener((tab) => {
-  chrome.tabs.sendMessage(tab.id as number, {action: "open-warp"});
+  chrome.tabs.sendMessage(tab.id as number, {action: 'open-warp'});
 });
+
+chrome.runtime.onMessage.addListener((message, sender) => {
+  switch (message.action) {
+    case 'new-tab':
+      openTab()
+      break;
+  }
+})

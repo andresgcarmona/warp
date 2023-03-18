@@ -16,7 +16,11 @@ export const getCommands = (): Command[] => {
       title: 'New tab',
       desc: 'Open a new tab',
       action: () => {
-        console.log('Open a new tab')
+        console.log('Open a new tab', chrome, chrome.runtime)
+        
+        chrome.runtime?.sendMessage({
+          action: 'new-tab',
+        })
       },
       icon: '✨',
     },
