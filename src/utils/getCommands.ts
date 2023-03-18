@@ -11,18 +11,24 @@ export const getCommands = (): Command[] => {
         }
       },
       icon: '🔍',
-    },
-    {
+    }, {
       title: 'New tab',
       desc: 'Open a new tab',
       action: () => {
-        console.log('Open a new tab', chrome, chrome.runtime)
-        
         chrome.runtime?.sendMessage({
           action: 'new-tab',
         })
       },
       icon: '✨',
+    }, {
+      title: 'Close tab',
+      desc: 'Close the current tab',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'close-tab',
+        })
+      },
+      icon: '🗑',
     },
   ] as Command[]
 }

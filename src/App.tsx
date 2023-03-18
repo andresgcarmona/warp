@@ -87,9 +87,9 @@ export const App = () => {
     }
     
     const searchRegExp = new RegExp(search, 'i')
-    
-    return [defaultCommands[0]].concat(commands.filter((command: CommandInterface) => {
-      command.title.match(searchRegExp) || command.desc.match(searchRegExp)
+  
+    return [commands[0]].concat(commands.filter((command: CommandInterface) => {
+      return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
     }))
   }, [search])
   
@@ -122,11 +122,15 @@ export const App = () => {
       
       if (e.key === 'Enter') {
         setActiveIndex(index => {
-          // Get command.
-          const command = filteredCommands[index]
+          console.log(index)
           
-          if (command.action) {
-            command.action(search as any)
+          if (index === 0) {
+            // Get command.
+            const command = filteredCommands[index]
+  
+            if (command.action) {
+              command.action(search as any)
+            }
           }
           
           return index
