@@ -125,19 +125,19 @@ export const App = () => {
     }
     
     if (e.key === 'Enter') {
-      setActiveIndex(index => {
-        if (index === 0) {
-          // Get command.
-          const command = filteredCommands[index]
-          
-          if (command.action && typeof command.action !== 'string') {
-            command.action(search as any)
-          }
-        }
-        
-        return index
-      })
+      // Get command.
+      const command = filteredCommands[activeIndex]
       
+      if (command.action && typeof command.action === 'string') {
+        chrome.runtime?.sendMessage({ action: command.action, command })
+      }
+      
+      if (command.action && typeof command.action !== 'string') {
+        command.action(search as any)
+      }
+      
+      setSearch('')
+      closeWarp()
     }
   }
   
@@ -149,8 +149,6 @@ export const App = () => {
   
   const getTabs = async () => {
     const { tabs } = await chrome.runtime?.sendMessage({ action: 'get-tabs' }) || {}
-    
-    console.log({ tabs })
     
     if (Array.isArray(tabs)) {
       setCommands(commands => [...commands, ...tabs])
@@ -221,6 +219,9 @@ export const App = () => {
                     }
                     
                     command.action(search as any)
+                    
+                    setSearch('')
+                    closeWarp()
                   }}/>
               ))}
             </div>
