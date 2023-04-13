@@ -73,6 +73,12 @@ export const App = () => {
     setIsOpen(false)
   }
   
+  const clearWarp = () => {
+    setSearch('')
+    setActiveIndex(0)
+    closeWarp()
+  }
+  
   // Listen messages from background
   chrome.runtime?.onMessage.addListener((message: ActionMessage) => {
     if (message.action == 'open-warp') {
@@ -140,8 +146,7 @@ export const App = () => {
         command.action(search as any)
       }
       
-      setSearch('')
-      closeWarp()
+      clearWarp()
     }
   }
   
@@ -219,13 +224,14 @@ export const App = () => {
                     if (typeof command.action === 'string') {
                       chrome.runtime?.sendMessage({ action: command.action, command })
                       
+                      clearWarp()
+                      
                       return
                     }
                     
                     command.action(search as any)
                     
-                    setSearch('')
-                    closeWarp()
+                    clearWarp()
                   }}/>
               ))}
             </div>
