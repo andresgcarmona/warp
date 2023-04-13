@@ -63,6 +63,10 @@ export const App = () => {
   
   const openWarp = () => {
     setIsOpen(true)
+    
+    setTimeout(() => {
+      input.current?.focus()
+    }, 100)
   }
   
   const closeWarp = () => {
