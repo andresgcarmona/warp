@@ -47,6 +47,19 @@ const closeTab = async () => {
   }
 }
 
+const getTabs = async () => {
+  const tabs = await chrome.tabs.query({})
+  
+  return tabs.map(({ title, url, favIconUrl, index, pinned}) => ({
+    title,
+    url,
+    desc: url,
+    icon: favIconUrl,
+    index,
+    pinned,
+  }))
+}
+
 chrome.runtime.onInstalled.addListener(function () {
   chrome.storage.sync.set({ installed: true }, function () {
     console.log('The extension was successfully installed.')
@@ -57,8 +70,6 @@ chrome.runtime.onInstalled.addListener(function () {
       populate: true,
     },
     (windows) => {
-      console.log(windows)
-      
       for (let window of windows) {
         for (let tab of window.tabs ?? []) {
           if (tab && !tab.url?.includes('chrome://') && !tab.url?.includes('chrome-extension://') &&
@@ -75,13 +86,26 @@ chrome.action.onClicked.addListener(async (tab) => {
   await chrome.tabs.sendMessage(tab.id as number, { action: 'open-warp' })
 })
 
-chrome.runtime.onMessage.addListener(async (message, sender) => {
-  switch (message.action) {
-    case 'new-tab':
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'new-tab') {
+    (async () => {
       await openTab()
-      break
-    case 'close-tab':
-      await closeTab()
-      break
+    })()
   }
+  
+  if (message.action === 'close-tab') {
+    (async () => {
+      await closeTab()
+    })()
+  }
+  
+  if (message.action === 'get-tabs') {
+    (async () => {
+      const tabs = await getTabs()
+      
+      sendResponse({ tabs })
+    })()
+  }
+  
+  return true
 })

@@ -4,4 +4,5 @@ export interface Command {
   action: (...args: any) => any
   icon: string
   keys?: string[]
+  url?: string
 }

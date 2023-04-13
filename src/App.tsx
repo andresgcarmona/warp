@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Command as CommandInterface } from './types'
 import { getCommands } from './utils/getCommands'
 
@@ -37,7 +37,7 @@ const Command: FC<{
       
       <div className="warp-item-details">
         <div className="warp-item-name">{command.title}</div>
-        <div className="warp-item-desc">{command.desc}</div>
+        <div className="warp-item-desc">{command.desc || command.url}</div>
       </div>
     </div>
   )
@@ -48,6 +48,7 @@ export const App = () => {
   const [search, setSearch]           = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [commands, setCommands]       = useState<CommandInterface[]>(defaultCommands)
+  const [filteredCommands, setFilteredCommands]       = useState<CommandInterface[]>(defaultCommands)
   
   const input = useRef<HTMLInputElement>(null)
   
@@ -81,79 +82,96 @@ export const App = () => {
     }
   })
   
-  const filteredCommands = useMemo(() => {
+  const maxIndex = filteredCommands.length - 1
+  
+  const filterCommands = async () => {
     if (search.trim() === '') {
       return commands
     }
     
     const searchRegExp = new RegExp(search, 'i')
-  
-    return [commands[0]].concat(commands.filter((command: CommandInterface) => {
+    
+    return Promise.resolve([commands[0]].concat(commands.filter((command: CommandInterface) => {
       return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
-    }))
-  }, [search])
+    })))
+  }
   
-  const checkKeyPressed = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
-        setActiveIndex(index => {
-          console.log(index, filteredCommands.length)
-          if (index === filteredCommands.length - 1) return filteredCommands.length - 1
-          
-          return index + 1
-        })
-      }
-      
-      if (e.key === 'ArrowUp') {
-        setActiveIndex(index => {
-          if (index === 0) return 0
-          
-          return index - 1
-        })
-      }
-      
-      if (e.key === 'Home') {
-        setActiveIndex(0)
-      }
-      
-      if (e.key === 'End') {
-        setActiveIndex(filteredCommands.length - 1)
-      }
-      
-      if (e.key === 'Enter') {
-        setActiveIndex(index => {
-          console.log(index)
-          
-          if (index === 0) {
-            // Get command.
-            const command = filteredCommands[index]
-  
-            if (command.action) {
-              command.action(search as any)
-            }
-          }
-          
-          return index
-        })
+  const checkKeyPressed = (e: any) => {
+    console.log(e.key)
+    if (e.key === 'ArrowDown') {
+      setActiveIndex(index => {
+        console.log(index, filteredCommands.length, maxIndex)
+        if (index === maxIndex) return maxIndex
         
-      }
-    },
-    [activeIndex, filteredCommands.length],
-  )
+        return index + 1
+      })
+    }
+    
+    if (e.key === 'ArrowUp') {
+      setActiveIndex(index => {
+        if (index === 0) return 0
+        
+        return index - 1
+      })
+    }
+    
+    if (e.key === 'Home') {
+      setActiveIndex(0)
+    }
+    
+    if (e.key === 'End') {
+      setActiveIndex(filteredCommands.length - 1)
+    }
+    
+    if (e.key === 'Enter') {
+      setActiveIndex(index => {
+        if (index === 0) {
+          // Get command.
+          const command = filteredCommands[index]
+          
+          if (command.action) {
+            command.action(search as any)
+          }
+        }
+        
+        return index
+      })
+      
+    }
+  }
+  
+  const getTabs = async () => {
+    const { tabs } = await chrome.runtime?.sendMessage({ action: 'get-tabs' }) || {}
+    
+    if (Array.isArray(tabs)) {
+      setCommands(commands => [...commands, ...tabs])
+    }
+  }
+  
+  useLayoutEffect(() => {
+    input.current?.focus()
+  }, [])
+  
+  useEffect(() => {
+    setFilteredCommands(commands)
+  }, [commands])
   
   useEffect(() => {
     setActiveIndex(0)
   }, [filteredCommands.length])
   
   useEffect(() => {
-    document.addEventListener('keydown', checkKeyPressed)
-    
-    input.current?.focus()
-    
-    return () => {
-      document.removeEventListener('keydown', checkKeyPressed)
-    }
+    // Add open tabs to list of available commands.
+    (async () => {
+      await getTabs()
+    })()
   }, [])
+  
+  useEffect(() => {
+    (async () => {
+      setFilteredCommands(await filterCommands())
+    })()
+  }, [search])
   
   return (
     <>
@@ -167,6 +185,7 @@ export const App = () => {
                 setSearch(e.target.value)
               }}
                 ref={input}
+                onKeyDown={checkKeyPressed}
               />
             </div>
             <div id="warp-list">
