@@ -31,9 +31,12 @@ const Command: FC<{
   return (
     <div className={`warp-item ${isActive ? 'warp-item-active' : ''}`} ref={ref} onMouseEnter={handleHover}
          onClick={handleSelect} onKeyDown={handleSelect} tabIndex={tabIndex}>
-      {command.icon && command.icon.startsWith('http') ? <img src={command.icon} alt={command.title}
-                                                              className="warp-emoji-action"/> : <span
-        className="warp-emoji-action">{command.icon}</span>}
+      
+      {
+        command.icon && command.icon.startsWith('http')
+          ? <img src={command.icon} alt={command.title} className="warp-emoji-action"/>
+          : <span className="warp-emoji-action">{command.icon}</span>
+      }
       
       <div className="warp-item-details">
         <div className="warp-item-name">{command.title}</div>
@@ -127,7 +130,7 @@ export const App = () => {
           // Get command.
           const command = filteredCommands[index]
           
-          if (command.action) {
+          if (command.action && typeof command.action !== 'string') {
             command.action(search as any)
           }
         }
@@ -146,6 +149,8 @@ export const App = () => {
   
   const getTabs = async () => {
     const { tabs } = await chrome.runtime?.sendMessage({ action: 'get-tabs' }) || {}
+    
+    console.log({ tabs })
     
     if (Array.isArray(tabs)) {
       setCommands(commands => [...commands, ...tabs])
@@ -209,6 +214,12 @@ export const App = () => {
                     setActiveIndex(index)
                   }}
                   handleSelect={() => {
+                    if (typeof command.action === 'string') {
+                      chrome.runtime?.sendMessage({ action: command.action, command })
+                      
+                      return
+                    }
+                    
                     command.action(search as any)
                   }}/>
               ))}

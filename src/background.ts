@@ -47,17 +47,35 @@ const closeTab = async () => {
   }
 }
 
+const showTab = async (tab: Tab) => {
+  await chrome.tabs.highlight({
+    tabs: tab.index,
+    windowId: tab.windowId
+  })
+  
+  await chrome.windows.update(
+    tab.windowId,
+    { focused: true }
+  )
+}
+
 const getTabs = async () => {
   const tabs = await chrome.tabs.query({})
   
-  return tabs.map(({ title, url, favIconUrl, index, pinned}) => ({
-    title,
-    url,
-    desc: url,
-    icon: favIconUrl,
-    index,
-    pinned,
-  }))
+  return tabs.map((tab: Tab) => {
+    const { title, url, favIconUrl, index, windowId, pinned } = tab
+    
+    return ({
+      title,
+      url,
+      desc: url,
+      icon: favIconUrl,
+      index,
+      windowId,
+      pinned,
+      action: 'show-tab',
+    })
+  })
 }
 
 chrome.runtime.onInstalled.addListener(function () {
@@ -104,6 +122,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const tabs = await getTabs()
       
       sendResponse({ tabs })
+    })()
+  }
+  
+  if (message.action === 'show-tab') {
+    (async () => {
+      await showTab(message.command)
     })()
   }
   
