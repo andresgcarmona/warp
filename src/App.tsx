@@ -97,10 +97,8 @@ export const App = () => {
   }
   
   const checkKeyPressed = (e: any) => {
-    console.log(e.key)
     if (e.key === 'ArrowDown') {
       setActiveIndex(index => {
-        console.log(index, filteredCommands.length, maxIndex)
         if (index === maxIndex) return maxIndex
         
         return index + 1
@@ -140,6 +138,12 @@ export const App = () => {
     }
   }
   
+  const checkCloseKey = (e: any) => {
+    if (e.key === 'Escape') {
+      closeWarp()
+    }
+  }
+  
   const getTabs = async () => {
     const { tabs } = await chrome.runtime?.sendMessage({ action: 'get-tabs' }) || {}
     
@@ -165,6 +169,12 @@ export const App = () => {
     (async () => {
       await getTabs()
     })()
+    
+    document.addEventListener('keydown', checkCloseKey)
+    
+    return () => {
+      document.removeEventListener('keydown', checkCloseKey)
+    }
   }, [])
   
   useEffect(() => {
@@ -211,7 +221,7 @@ export const App = () => {
             </div>
           </div>
         </div>
-        <div id="warp-overlay"></div>
+        <div id="warp-overlay" onClick={closeWarp}></div>
       </div>
       <div id="warp-extension-toast"><img alt="" src=""/><span>The action has been successful</span></div>
     </>
