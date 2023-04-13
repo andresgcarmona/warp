@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap');
+
 @media (prefers-color-scheme: dark) {
   .warp-extension {
     --background: #1e2128;
@@ -31,7 +33,7 @@
 }
 
 .warp-extension {
-  font-family: Helvetica, serif !important;
+  font-family: Inter, Helvetica, serif !important;
   z-index: 99999999999;
 
   &.warp-closing {
