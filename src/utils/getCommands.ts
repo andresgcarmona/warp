@@ -29,6 +29,15 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '🗑',
+    }, {
+      title: 'Duplicate tab',
+      desc: 'Duplicate current tab',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'duplicate-tab',
+        })
+      },
+      icon: '➕',
     },
   ] as Command[]
 }

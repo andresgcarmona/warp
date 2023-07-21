@@ -22,7 +22,7 @@ function injectScripts (tab: any) {
   }
 }
 
-async function getCurrentTab (): Promise<Tab> {
+const getCurrentTab = async (): Promise<Tab> => {
   const queryOptions = {
     active: true,
     currentWindow: true,
@@ -57,6 +57,14 @@ const showTab = async (tab: Tab) => {
     tab.windowId,
     { focused: true }
   )
+}
+
+const duplicateTab = async () => {
+  const tab = await getCurrentTab()
+  
+  if (tab) {
+    chrome.tabs.duplicate(tab.id as number)
+  }
 }
 
 const getTabs = async () => {
@@ -114,6 +122,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'close-tab') {
     (async () => {
       await closeTab()
+    })()
+  }
+  
+  if (message.action === 'duplicate-tab') {
+    (async () => {
+      await duplicateTab()
     })()
   }
   

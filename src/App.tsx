@@ -33,7 +33,7 @@ const Command: FC<{
          onClick={handleSelect} onKeyDown={handleSelect} tabIndex={tabIndex}>
       
       {
-        command.icon && command.icon.startsWith('http')
+        command.icon && (command.icon.startsWith('http') || command.icon.startsWith('data'))
           ? <img src={command.icon} alt={command.title} className="warp-emoji-action"/>
           : <span className="warp-emoji-action">{command.icon}</span>
       }
