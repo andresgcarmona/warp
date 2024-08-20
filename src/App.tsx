@@ -103,9 +103,20 @@ export const App = () => {
 
     const searchRegExp = new RegExp(search, 'i')
 
-    return Promise.resolve(commands.filter((command: CommandInterface) => {
-      return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
-    }))
+    return Promise.resolve((() => {
+      const filteredCommands = commands.filter((command: CommandInterface) => {
+        return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
+      })
+
+      if (filteredCommands.length === 0) {
+        // Return search command by default.
+        return [commands[0]]
+      }
+
+      filteredCommands.push(commands[0])
+
+      return filteredCommands
+    })())
   }
 
   const checkKeyPressed = (e: any) => {
