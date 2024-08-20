@@ -67,6 +67,14 @@ const duplicateTab = async () => {
   }
 }
 
+const pinTab = async () => {
+  const tab = await getCurrentTab()
+
+  if (tab) {
+    await chrome.tabs.update(tab.id as number, { pinned: !tab.pinned })
+  }
+}
+
 const getTabs = async () => {
   const tabs = await chrome.tabs.query({})
 
@@ -128,6 +136,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'duplicate-tab') {
     (async () => {
       await duplicateTab()
+    })()
+  }
+
+  if (message.action === 'pin-tab') {
+    (async () => {
+      await pinTab()
     })()
   }
 

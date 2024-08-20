@@ -47,7 +47,7 @@ const Command: FC<{
 }
 
 export const App = () => {
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(import.meta.env.DEV)
   const [search, setSearch] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [commands, setCommands] = useState<CommandInterface[]>(defaultCommands)
@@ -103,9 +103,9 @@ export const App = () => {
 
     const searchRegExp = new RegExp(search, 'i')
 
-    return Promise.resolve([commands[0]].concat(commands.filter((command: CommandInterface) => {
+    return Promise.resolve(commands.filter((command: CommandInterface) => {
       return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
-    })))
+    }))
   }
 
   const checkKeyPressed = (e: any) => {
@@ -156,7 +156,7 @@ export const App = () => {
   }
 
   const getTabs = async () => {
-    const {tabs} = await chrome.runtime?.sendMessage({action: 'get-tabs'}) || {}
+    const { tabs } = await chrome.runtime?.sendMessage({ action: 'get-tabs' }) || {}
 
     if (Array.isArray(tabs)) {
       setCommands(commands => [...commands, ...tabs])

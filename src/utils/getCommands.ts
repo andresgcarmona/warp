@@ -38,6 +38,15 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '➕',
+    }, {
+      title: 'Pin/unpin tab',
+      desc: 'Pin/unpin current tab',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'pin-tab',
+        })
+      },
+      icon: '📌',
     },
   ] as Command[]
 }
