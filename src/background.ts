@@ -2,9 +2,9 @@ import Tab = chrome.tabs.Tab
 
 function injectScripts (tab: any) {
   const manifest = chrome.runtime.getManifest() || {}
-  
+
   const scripts = manifest.content_scripts && manifest.content_scripts[0]
-  
+
   if (scripts && Array.isArray(scripts.js)) {
     for (let script of scripts.js) {
       chrome.scripting.executeScript({
@@ -12,7 +12,7 @@ function injectScripts (tab: any) {
         files: [script],
       })
     }
-    
+
     if (scripts && Array.isArray(scripts.css)) {
       chrome.scripting.insertCSS({
         target: { tabId: tab.id },
@@ -27,9 +27,9 @@ const getCurrentTab = async (): Promise<Tab> => {
     active: true,
     currentWindow: true,
   }
-  
+
   const [tab] = await chrome.tabs.query(queryOptions)
-  
+
   return tab
 }
 
@@ -41,7 +41,7 @@ const openTab = async () => {
 
 const closeTab = async () => {
   const tab = await getCurrentTab()
-  
+
   if (tab && tab.id) {
     await chrome.tabs.remove(tab.id);
   }
@@ -52,7 +52,7 @@ const showTab = async (tab: Tab) => {
     tabs: tab.index,
     windowId: tab.windowId
   })
-  
+
   await chrome.windows.update(
     tab.windowId,
     { focused: true }
@@ -61,7 +61,7 @@ const showTab = async (tab: Tab) => {
 
 const duplicateTab = async () => {
   const tab = await getCurrentTab()
-  
+
   if (tab) {
     chrome.tabs.duplicate(tab.id as number)
   }
@@ -69,10 +69,10 @@ const duplicateTab = async () => {
 
 const getTabs = async () => {
   const tabs = await chrome.tabs.query({})
-  
+
   return tabs.map((tab: Tab) => {
     const { title, url, favIconUrl, index, windowId, pinned } = tab
-    
+
     return ({
       title,
       url,
@@ -90,7 +90,7 @@ chrome.runtime.onInstalled.addListener(function () {
   chrome.storage.sync.set({ installed: true }, function () {
     console.log('The extension was successfully installed.')
   })
-  
+
   chrome.windows.getAll(
     {
       populate: true,
@@ -118,32 +118,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       await openTab()
     })()
   }
-  
+
   if (message.action === 'close-tab') {
     (async () => {
       await closeTab()
     })()
   }
-  
+
   if (message.action === 'duplicate-tab') {
     (async () => {
       await duplicateTab()
     })()
   }
-  
+
   if (message.action === 'get-tabs') {
     (async () => {
       const tabs = await getTabs()
-      
+
       sendResponse({ tabs })
     })()
   }
-  
+
   if (message.action === 'show-tab') {
     (async () => {
       await showTab(message.command)
     })()
   }
-  
+
   return true
 })
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === 'open-warp') {
+    (async () => {
+      const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+
+      if (tab?.id) {
+        await chrome.tabs.sendMessage(tab.id, { action: command });
+      }
+    })()
+  }
+});
