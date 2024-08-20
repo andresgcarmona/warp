@@ -70,6 +70,7 @@ export const App = () => {
   }
 
   const closeWarp = () => {
+    setSearch('')
     setIsOpen(false)
   }
 
@@ -195,6 +196,7 @@ export const App = () => {
     document.addEventListener('keydown', checkCloseKey)
 
     return () => {
+      setSearch('')
       document.removeEventListener('keydown', checkCloseKey)
     }
   }, [])
