@@ -47,6 +47,15 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '📌',
+    }, {
+      title: 'Reload tab',
+      desc: 'Reload current tab',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'reload-tab',
+        })
+      },
+      icon: '🔃',
     },
   ] as Command[]
 }

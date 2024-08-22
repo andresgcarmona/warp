@@ -75,6 +75,14 @@ const pinTab = async () => {
   }
 }
 
+const reloadTab = async () => {
+  const tab = await getCurrentTab()
+
+  if (tab) {
+    await chrome.tabs.reload(tab.id as number)
+  }
+}
+
 const getTabs = async () => {
   const tabs = await chrome.tabs.query({})
 
@@ -156,6 +164,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'show-tab') {
     (async () => {
       await showTab(message.command)
+    })()
+  }
+
+  if (message.action === 'reload-tab') {
+    (async () => {
+      await reloadTab()
     })()
   }
 
