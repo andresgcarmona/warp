@@ -1,8 +1,23 @@
-import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { FC, SyntheticEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Command as CommandInterface } from './types'
 import { getCommands } from './utils/getCommands'
 
 const defaultCommands: CommandInterface[] = getCommands()
+
+const Icon = ({ command }: { command: CommandInterface }) => {
+  const { icon, title } = command
+
+  if (!icon) return <img src={chrome.runtime.getURL('/assets/globe.svg')} alt="" className="warp-icon-action" />
+
+  if (typeof icon === 'string' && (icon.startsWith('http') || icon.startsWith('data') || icon.includes('chrome-extension'))) {
+    return <img src={icon} alt={title} className="warp-icon-action" onError={(e: SyntheticEvent<HTMLImageElement, Event>) => {
+      console.log('error', e)
+      e.currentTarget.setAttribute('src', chrome.runtime.getURL('/assets/globe.svg'))
+    }}/>
+  }
+
+  return <span className="warp-icon-action">{command.icon}</span>
+}
 
 const Command: FC<{
   command: CommandInterface
@@ -32,11 +47,7 @@ const Command: FC<{
     <div className={`warp-item ${isActive ? 'warp-item-active' : ''}`} ref={ref} onMouseEnter={handleHover}
          onClick={handleSelect} onKeyDown={handleSelect} tabIndex={tabIndex}>
 
-      {
-        command.icon && (command.icon.startsWith('http') || command.icon.startsWith('data'))
-          ? <img src={command.icon} alt={command.title} className="warp-emoji-action"/>
-          : <span className="warp-emoji-action">{command.icon}</span>
-      }
+      {command.icon && <Icon command={command} />}
 
       <div className="warp-item-details">
         <div className="warp-item-name">{command.title}</div>
@@ -51,7 +62,7 @@ export const App = () => {
   const [search, setSearch] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const [commands, setCommands] = useState<CommandInterface[]>(defaultCommands)
-  const [filteredCommands, setFilteredCommands] = useState<CommandInterface[]>(defaultCommands)
+  const [filteredCommands, setFilteredCommands] = useState<CommandInterface[]>([])
 
   const input = useRef<HTMLInputElement>(null)
 
@@ -102,7 +113,7 @@ export const App = () => {
       return commands
     }
 
-    const searchRegExp = new RegExp(search, 'i')
+    const searchRegExp = new RegExp(search.trim(), 'i')
 
     return Promise.resolve((() => {
       const filteredCommands = commands.filter((command: CommandInterface) => {
@@ -150,7 +161,7 @@ export const App = () => {
       const command = filteredCommands[activeIndex]
 
       if (command.action && typeof command.action === 'string') {
-        chrome.runtime?.sendMessage({action: command.action, command})
+        chrome.runtime?.sendMessage({ action: command.action, command })
       }
 
       if (command.action && typeof command.action !== 'string') {
@@ -188,7 +199,7 @@ export const App = () => {
   }, [filteredCommands.length])
 
   useEffect(() => {
-    // Add open tabs to list of available commands.
+    // Get list of commands and tabs.
     (async () => {
       await getTabs()
     })()
