@@ -39,6 +39,15 @@ const openTab = async (url = 'chrome://newtab') => {
   })
 }
 
+const openIncognito = async (url = 'chrome://newtab') => {
+  if (url.startsWith('chrome') || url.startsWith('http')) {
+    await chrome.windows.create({ incognito: true, url })
+  }
+
+  await chrome.windows.create({ incognito: true, url: 'chrome://newtab' })
+
+}
+
 const closeTab = async () => {
   const tab = await getCurrentTab()
 
@@ -199,13 +208,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })()
   }
 
+  if (message.action === 'open-incognito') {
+    (async () => {
+      await openIncognito(message.query)
+    })()
+  }
+
   return true
 })
 
 chrome.commands.onCommand.addListener((command) => {
   if (command === 'open-warp') {
     (async () => {
-      const [tab] = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+      const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
 
       if (tab?.id) {
         await chrome.tabs.sendMessage(tab.id, { action: command });

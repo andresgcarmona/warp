@@ -11,6 +11,7 @@ export const getCommands = (): Command[] => {
         }
       },
       icon: chrome.runtime.getURL('assets/google.ico'),
+      default: true,
     }, {
       title: 'New tab',
       desc: 'Open a new tab',
@@ -20,6 +21,7 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '✨',
+      default: true,
     }, {
       title: 'Close tab',
       desc: 'Close the current tab',
@@ -83,6 +85,17 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '⬇️',
+    }, {
+      title: 'Open incognito',
+      desc: 'Open incognito window',
+      action: (query: string) => {
+        chrome.runtime?.sendMessage({
+          action: 'open-incognito',
+          query,
+        })
+      },
+      icon: '🫣',
+      default: true,
     },
   ] as Command[]
 }

@@ -122,7 +122,7 @@ export const App = () => {
 
       if (filteredCommands.length === 0) {
         // Return search command by default.
-        return [commands[0]]
+        return commands.filter((c: CommandInterface) => c.default)
       }
 
       filteredCommands.push(commands[0])
@@ -245,7 +245,7 @@ export const App = () => {
                   }}
                   handleSelect={() => {
                     if (typeof command.action === 'string') {
-                      chrome.runtime?.sendMessage({action: command.action, command})
+                      chrome.runtime?.sendMessage({ action: command.action, command, query: search })
 
                       clearWarp()
 

@@ -7,4 +7,5 @@ export interface Command {
   icon: string | React.ReactNode
   keys?: string[]
   url?: string
+  default?: boolean
 }
