@@ -56,6 +56,15 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '🔃',
+    }, {
+      title: 'Mute/unmute tab',
+      desc: 'Mute/unmute current tab',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'mute-tab',
+        })
+      },
+      icon: '🔇',
     },
   ] as Command[]
 }

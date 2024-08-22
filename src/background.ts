@@ -83,6 +83,14 @@ const reloadTab = async () => {
   }
 }
 
+const muteTab = async () => {
+  const tab = await getCurrentTab()
+
+  if (tab) {
+    await chrome.tabs.update(tab.id as number, { muted: !tab.mutedInfo?.muted ?? true })
+  }
+}
+
 const getTabs = async () => {
   const tabs = await chrome.tabs.query({})
 
@@ -170,6 +178,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'reload-tab') {
     (async () => {
       await reloadTab()
+    })()
+  }
+
+  if (message.action === 'mute-tab') {
+    (async () => {
+      await muteTab()
     })()
   }
 
