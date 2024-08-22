@@ -10,7 +10,7 @@ export const getCommands = (): Command[] => {
           window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`)
         }
       },
-      icon: '🔍',
+      icon: chrome.runtime.getURL('assets/google.ico'),
     }, {
       title: 'New tab',
       desc: 'Open a new tab',
