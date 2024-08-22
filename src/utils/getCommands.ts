@@ -74,6 +74,15 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '🕙',
+    }, {
+      title: 'Open downloads',
+      desc: 'Open chrome downloads',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'open-downloads',
+        })
+      },
+      icon: '⬇️',
     },
   ] as Command[]
 }

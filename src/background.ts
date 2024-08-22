@@ -91,14 +91,6 @@ const muteTab = async () => {
   }
 }
 
-const openHistory = async () => {
-  const tab = await getCurrentTab()
-
-  if (tab) {
-    await openTab('chrome://history')
-  }
-}
-
 const getTabs = async () => {
   const tabs = await chrome.tabs.query({})
 
@@ -197,7 +189,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === 'open-history') {
     (async () => {
-      await openHistory()
+      await openTab('chrome://history')
+    })()
+  }
+
+  if (message.action === 'open-downloads') {
+    (async () => {
+      await openTab('chrome://downloads')
     })()
   }
 
