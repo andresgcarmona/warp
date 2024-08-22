@@ -65,6 +65,15 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '🔇',
+    }, {
+      title: 'Open history',
+      desc: 'Open chrome history',
+      action: () => {
+        chrome.runtime?.sendMessage({
+          action: 'open-history',
+        })
+      },
+      icon: '🕙',
     },
   ] as Command[]
 }

@@ -33,9 +33,9 @@ const getCurrentTab = async (): Promise<Tab> => {
   return tab
 }
 
-const openTab = async () => {
+const openTab = async (url = 'chrome://newtab') => {
   await chrome.tabs.create({
-    url: 'chrome://newtab',
+    url,
   })
 }
 
@@ -88,6 +88,14 @@ const muteTab = async () => {
 
   if (tab) {
     await chrome.tabs.update(tab.id as number, { muted: !tab.mutedInfo?.muted ?? true })
+  }
+}
+
+const openHistory = async () => {
+  const tab = await getCurrentTab()
+
+  if (tab) {
+    await openTab('chrome://history')
   }
 }
 
@@ -184,6 +192,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'mute-tab') {
     (async () => {
       await muteTab()
+    })()
+  }
+
+  if (message.action === 'open-history') {
+    (async () => {
+      await openHistory()
     })()
   }
 
