@@ -125,12 +125,9 @@ export const App = () => {
         return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
       })
 
-      if (filteredCommands.length === 0) {
-        // Return search command by default.
-        return commands.filter((c: CommandInterface) => c.default)
-      }
-
-      return filteredCommands.concat([...commands.filter((c: CommandInterface) => c.default)])
+      return filteredCommands.concat([
+        ...commands.filter((c: CommandInterface) => c.default && !filteredCommands.find((c2: CommandInterface) => c.title === c2.title))
+      ])
     })())
   }
 
