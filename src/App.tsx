@@ -25,12 +25,12 @@ const Command: FC<{
   handleHover: (e: any) => void
   handleSelect: (e: any) => void
 }> = ({
-        command,
-        tabIndex,
-        handleHover,
-        handleSelect,
-        isActive = false,
-      }) => {
+  command,
+  tabIndex,
+  handleHover,
+  handleSelect,
+  isActive = false,
+}) => {
   const ref = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
@@ -103,6 +103,8 @@ export const App = () => {
     if (message.action == 'close-warp') {
       closeWarp()
     }
+
+
   })
 
   const maxIndex = filteredCommands.length - 1
@@ -131,7 +133,20 @@ export const App = () => {
     })())
   }
 
-  const checkKeyPressed = (e: any) => {
+  const executeCommand = async (command: CommandInterface) => {
+    // Get bookmarks.
+    if (command.action === 'get-bookmarks') {
+      await getBookmarks()
+
+      return
+    }
+
+    chrome.runtime?.sendMessage({ action: command.action, command, query: search })
+
+    clearWarp()
+  }
+
+  const checkKeyPressed = async (e: any) => {
     if (e.key === 'ArrowDown') {
       setActiveIndex(index => {
         if (index === maxIndex) return maxIndex
@@ -161,14 +176,14 @@ export const App = () => {
       const command = filteredCommands[activeIndex]
 
       if (command.action && typeof command.action === 'string') {
-        chrome.runtime?.sendMessage({ action: command.action, command })
+        await executeCommand(command)
       }
 
       if (command.action && typeof command.action !== 'string') {
         command.action(search as any)
-      }
 
-      clearWarp()
+        clearWarp()
+      }
     }
   }
 
@@ -183,6 +198,14 @@ export const App = () => {
 
     if (Array.isArray(tabs)) {
       setCommands(commands => [...commands, ...tabs])
+    }
+  }
+
+  const getBookmarks = async () => {
+    const { bookmarks } = await chrome.runtime?.sendMessage({ action: 'get-bookmarks' }) || {}
+
+    if (Array.isArray(bookmarks)) {
+      setCommands(bookmarks)
     }
   }
 
@@ -243,11 +266,9 @@ export const App = () => {
                   handleHover={() => {
                     setActiveIndex(index)
                   }}
-                  handleSelect={() => {
+                  handleSelect={async () => {
                     if (typeof command.action === 'string') {
-                      chrome.runtime?.sendMessage({ action: command.action, command, query: search })
-
-                      clearWarp()
+                      executeCommand(command)
 
                       return
                     }

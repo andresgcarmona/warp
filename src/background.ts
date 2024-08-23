@@ -1,4 +1,5 @@
 import Tab = chrome.tabs.Tab
+import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 
 function injectScripts (tab: any) {
   const manifest = chrome.runtime.getManifest() || {}
@@ -120,6 +121,35 @@ const getTabs = async () => {
   })
 }
 
+const getBookmarks = async (query?: string) => {
+  let bookmarks;
+
+  if (query) {
+    bookmarks = await chrome.bookmarks.search(query)
+  }
+  else {
+    bookmarks = await chrome.bookmarks.getRecent(100)
+  }
+
+  console.log({ bookmarks })
+
+  return bookmarks.map((bookmark: BookmarkTreeNode) => {
+    const { id, title, url, index, parentId } = bookmark
+
+    return ({
+      id,
+      title,
+      url,
+      desc: url,
+      icon: '⭐',
+      index,
+      parentId,
+      action: 'show-bookmark',
+      is_bookmark: true,
+    })
+  })
+}
+
 chrome.runtime.onInstalled.addListener(function () {
   chrome.storage.sync.set({ installed: true }, function () {
     console.log('The extension was successfully installed.')
@@ -218,6 +248,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'search-youtube') {
     (async () => {
       await openTab(`https://www.youtube.com/results?search_query=${message.query}`)
+    })()
+  }
+
+  if (message.action === 'get-bookmarks') {
+    (async () => {
+      const bookmarks = await getBookmarks()
+
+      sendResponse({ bookmarks })
     })()
   }
 

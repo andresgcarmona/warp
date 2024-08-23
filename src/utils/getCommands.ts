@@ -109,6 +109,12 @@ export const getCommands = (): Command[] => {
       },
       icon: chrome.runtime?.getURL('assets/logo-youtube.png'),
       default: true,
+    }, {
+      title: 'List bookmarks',
+      desc: 'List all bookmarks',
+      action: 'get-bookmarks',
+      icon: '⭐',
+      default: true,
     },
   ] as Command[]
 }

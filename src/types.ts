@@ -9,4 +9,5 @@ export interface Command {
   url?: string
   default?: boolean
   is_tab?: boolean
+  is_bookmark?: boolean
 }
