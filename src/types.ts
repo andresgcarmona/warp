@@ -8,4 +8,5 @@ export interface Command {
   keys?: string[]
   url?: string
   default?: boolean
+  is_tab?: boolean
 }

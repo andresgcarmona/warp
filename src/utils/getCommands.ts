@@ -12,6 +12,7 @@ export const getCommands = (): Command[] => {
       },
       icon: chrome.runtime.getURL('assets/google.ico'),
       default: true,
+      is_tab: false,
     }, {
       title: 'New tab',
       desc: 'Open a new tab',

@@ -43,9 +43,9 @@ const openIncognito = async (url = 'chrome://newtab') => {
   if (url.startsWith('chrome') || url.startsWith('http')) {
     await chrome.windows.create({ incognito: true, url })
   }
-
-  await chrome.windows.create({ incognito: true, url: 'chrome://newtab' })
-
+  else{
+    await chrome.windows.create({ incognito: true, url: 'chrome://newtab' })
+  }
 }
 
 const closeTab = async () => {
@@ -115,6 +115,7 @@ const getTabs = async () => {
       windowId,
       pinned,
       action: 'show-tab',
+      is_tab: true,
     })
   })
 }

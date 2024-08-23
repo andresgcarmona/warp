@@ -11,7 +11,6 @@ const Icon = ({ command }: { command: CommandInterface }) => {
 
   if (typeof icon === 'string' && (icon.startsWith('http') || icon.startsWith('data') || icon.includes('chrome-extension'))) {
     return <img src={icon} alt={title} className="warp-icon-action" onError={(e: SyntheticEvent<HTMLImageElement, Event>) => {
-      console.log('error', e)
       e.currentTarget.setAttribute('src', chrome.runtime.getURL('/assets/globe.svg'))
     }}/>
   }
@@ -117,6 +116,12 @@ export const App = () => {
 
     return Promise.resolve((() => {
       const filteredCommands = commands.filter((command: CommandInterface) => {
+        if (search.trim().startsWith('/')) {
+          const searchRegExp = new RegExp(search.trim().replace('/' , ''), 'i')
+
+          return (!('is_tab' in command) || !command.is_tab) && (command.title.match(searchRegExp) || command.desc.match(searchRegExp))
+        }
+
         return command.title.match(searchRegExp) || command.desc.match(searchRegExp)
       })
 
