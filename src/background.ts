@@ -215,6 +215,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })()
   }
 
+  if (message.action === 'search-youtube') {
+    (async () => {
+      await openTab(`https://www.youtube.com/results?search_query=${message.query}`)
+    })()
+  }
+
   return true
 })
 

@@ -130,9 +130,7 @@ export const App = () => {
         return commands.filter((c: CommandInterface) => c.default)
       }
 
-      filteredCommands.push(commands[0])
-
-      return filteredCommands
+      return filteredCommands.concat([...commands.filter((c: CommandInterface) => c.default)])
     })())
   }
 

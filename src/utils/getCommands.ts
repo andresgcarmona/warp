@@ -10,7 +10,7 @@ export const getCommands = (): Command[] => {
           window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`)
         }
       },
-      icon: chrome.runtime.getURL('assets/google.ico'),
+      icon: chrome.runtime?.getURL('assets/google.ico'),
       default: true,
       is_tab: false,
     }, {
@@ -96,6 +96,18 @@ export const getCommands = (): Command[] => {
         })
       },
       icon: '🫣',
+      default: true,
+    },
+    {
+      title: 'YouTube',
+      desc: 'Search in YouTube',
+      action: (query: string) => {
+        chrome.runtime?.sendMessage({
+          action: 'search-youtube',
+          query,
+        })
+      },
+      icon: chrome.runtime?.getURL('assets/logo-youtube.png'),
       default: true,
     },
   ] as Command[]
